@@ -15,7 +15,7 @@ Ensure you have created two public GitHub repositories:
 ## 📋 Release Checklist
 
 ### Step 1: Push Source Code to GitHub
-Ensure all application files (`ghost.py`, `README.md`, etc.) are committed and pushed to the main branch of your `brew-ghost` repository.
+Ensure all application files (`ghost.py`, `readme.md`, etc.) are committed and pushed to the main branch of your `brew-ghost` repository.
 
 ```bash
 cd /Users/even/Desktop/Projects/Brew-Ghost
