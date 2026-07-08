@@ -11,6 +11,48 @@ import subprocess
 import json
 import time
 
+import datetime
+
+CONFIG_DIR = os.path.expanduser('~/.config/brew-ghost')
+CONFIG_FILE = os.path.join(CONFIG_DIR, 'config.json')
+
+def load_config():
+    if not os.path.exists(CONFIG_FILE):
+        return {}
+    try:
+        with open(CONFIG_FILE, 'r') as f:
+            return json.load(f)
+    except Exception:
+        return {}
+
+def save_config(config):
+    try:
+        os.makedirs(CONFIG_DIR, exist_ok=True)
+        with open(CONFIG_FILE, 'w') as f:
+            json.dump(config, f, indent=2)
+    except Exception:
+        pass
+
+def get_formula_executables(pkg, pkg_metadata):
+    """Retrieve list of executable names installed by the formula in its bin directory."""
+    executables = {pkg}
+    cellar = get_cellar_path()
+    version = pkg_metadata.get('version')
+    linked_keg = pkg_metadata.get('linked_keg')
+    
+    version_dir = version or linked_keg
+    if version_dir:
+        bin_dir = os.path.join(cellar, pkg, version_dir, 'bin')
+        if os.path.isdir(bin_dir):
+            try:
+                for entry in os.listdir(bin_dir):
+                    entry_path = os.path.join(bin_dir, entry)
+                    if os.path.isfile(entry_path) and os.access(entry_path, os.X_OK):
+                        executables.add(entry)
+            except OSError:
+                pass
+    return list(executables)
+
 # Threshold for marking a package as a ghost (in days)
 IDLE_THRESHOLD_DAYS = 90
 SECONDS_IN_A_DAY = 86400
@@ -206,12 +248,15 @@ def analyze_ghosts(packages, metadata, history_path, threshold_days=90):
     # File modification time for fallback when extended history is missing
     history_mtime = int(os.path.getmtime(history_path)) if os.path.exists(history_path) else int(time.time())
 
-    # Precompile search patterns for efficiency
+    # Precompile search patterns and cache executables for efficiency
     pkg_chars = r"a-zA-Z0-9\-_\+\.@"
-    pkg_patterns = {
-        pkg: re.compile(rf"(?<![{pkg_chars}]){re.escape(pkg)}(?![{pkg_chars}])")
-        for pkg in packages
-    }
+    pkg_patterns = {}
+    pkg_executables = {}
+    for pkg in packages:
+        execs = get_formula_executables(pkg, metadata.get(pkg, {}))
+        pkg_executables[pkg] = execs
+        pattern_str = "|".join(re.escape(e) for e in execs)
+        pkg_patterns[pkg] = re.compile(rf"(?<![{pkg_chars}])(?:{pattern_str})(?![{pkg_chars}])")
 
     remaining_packages = set(packages)
     
@@ -222,7 +267,7 @@ def analyze_ghosts(packages, metadata, history_path, threshold_days=90):
             
         found_in_entry = []
         for pkg in remaining_packages:
-            if pkg in cmd_str:  # Quick substring optimization
+            if any(e in cmd_str for e in pkg_executables[pkg]):  # Quick substring optimization
                 if pkg_patterns[pkg].search(cmd_str):
                     # If extended history timestamp is missing, use history file mtime
                     ts = entry_timestamp if entry_timestamp is not None else history_mtime
@@ -308,7 +353,7 @@ Options:
 def main():
     # Handle basic arguments
     exorcise_mode = False
-    idle_threshold_days = 90
+    config = load_config()
     
     args = sys.argv[1:]
     i = 0
@@ -329,16 +374,19 @@ def main():
                 val = int(val_str)
                 if val < 1 or val > 180:
                     raise ValueError()
-                idle_threshold_days = val
+                config['days_threshold'] = val
+                save_config(config)
+                print(f"{Color.SUCCESS}Settings updated: Inactivity threshold set to {val} days.{Color.RESET}")
+                sys.exit(0)
             except ValueError:
                 print(f"{Color.RED}Error: Invalid days value '{val_str}'. Must be an integer between 1 and 180.{Color.RESET}", file=sys.stderr)
                 sys.exit(1)
-            i += 2
         else:
             print(f"{Color.RED}Unknown argument: {arg}{Color.RESET}", file=sys.stderr)
             print_help()
             sys.exit(1)
 
+    idle_threshold_days = config.get('days_threshold', 90)
     history_file = os.path.expanduser('~/.zsh_history')
     
     print("Searching for absolute freeloaders in your Cellar...\n")
@@ -353,21 +401,38 @@ def main():
     
     # Handle warning prompt for extended history
     if not has_history_timestamps:
-        print(f"{Color.WARN}Warning: Zsh history does not contain timestamps (EXTENDED_HISTORY is off).{Color.RESET}", file=sys.stderr)
-        print("Ghost detection falls back to package installation times for unused commands.\n", file=sys.stderr)
+        current_time = int(time.time())
+        mute_until = config.get('extended_history_mute_until', 0)
         
-        # Check if stdin is a tty to ask the user
-        if sys.stdin.isatty() and sys.stdout.isatty():
-            try:
-                confirm = input(f"Would you like to enable extended history in ~/.zshrc automatically? (y/N): ").strip().lower()
-                if confirm in ('y', 'yes'):
-                    zshrc_path = os.path.expanduser('~/.zshrc')
-                    with open(zshrc_path, 'a') as f:
-                        f.write("\n# Enable extended history timestamps for brew-ghost\nsetopt EXTENDED_HISTORY\n")
-                    print(f"\n{Color.SUCCESS}Extended history has been enabled in ~/.zshrc! 🎉{Color.RESET}")
-                    print(f"Please open a new terminal session or run '{Color.BOLD}source ~/.zshrc{Color.RESET}' to apply changes.\n")
-            except (KeyboardInterrupt, EOFError):
-                print()
+        # Only prompt if not configured yet AND mute duration has expired
+        if not config.get('extended_history_configured') and current_time >= mute_until:
+            print(f"{Color.WARN}Warning: Zsh history does not contain timestamps (EXTENDED_HISTORY is off).{Color.RESET}", file=sys.stderr)
+            print("Ghost detection falls back to package installation times for unused commands.\n", file=sys.stderr)
+            
+            # Check if stdin is a tty to ask the user
+            if sys.stdin.isatty() and sys.stdout.isatty():
+                try:
+                    confirm = input(f"Would you like to enable extended history in ~/.zshrc automatically? (y/N): ").strip().lower()
+                    if confirm in ('y', 'yes'):
+                        zshrc_path = os.path.expanduser('~/.zshrc')
+                        with open(zshrc_path, 'a') as f:
+                            f.write("\n# Enable extended history timestamps for brew-ghost\nsetopt EXTENDED_HISTORY\n")
+                        print(f"\n{Color.SUCCESS}Extended history has been enabled in ~/.zshrc! 🎉{Color.RESET}")
+                        print(f"Please open a new terminal session or run '{Color.BOLD}source ~/.zshrc{Color.RESET}' to apply changes.\n")
+                        config['extended_history_configured'] = True
+                        save_config(config)
+                    else:
+                        # Mute for 7 days
+                        config['extended_history_mute_until'] = current_time + (7 * 24 * 3600)
+                        save_config(config)
+                        mute_date = datetime.datetime.fromtimestamp(config['extended_history_mute_until']).strftime('%Y-%m-%d %H:%M:%S')
+                        print(f"\nExtended history prompt muted for 7 days (until {mute_date}).\n")
+                except (KeyboardInterrupt, EOFError):
+                    print()
+        else:
+            # If muted or configured, just log the warning without prompting
+            print(f"{Color.WARN}Warning: Zsh history does not contain timestamps (EXTENDED_HISTORY is off).{Color.RESET}", file=sys.stderr)
+            print("Ghost detection falls back to package installation times for unused commands.\n", file=sys.stderr)
     
     if not ghosts:
         print(f"{Color.SUCCESS}No ghostly packages found in your Cellar! 🌟{Color.RESET}")
