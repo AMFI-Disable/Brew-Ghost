@@ -191,7 +191,7 @@ def format_size(bytes_size):
         return f"{int(round(mb))} MB"
     return f"{mb:.1f} MB"
 
-def analyze_ghosts(packages, metadata, history_path):
+def analyze_ghosts(packages, metadata, history_path, threshold_days=90):
     """Correlate shell history and install times to find ghost packages."""
     history_entries = parse_zsh_history(history_path)
     # Reverse so we search newest to oldest
@@ -236,11 +236,11 @@ def analyze_ghosts(packages, metadata, history_path):
             remaining_packages.remove(pkg)
 
     # Check for warning condition: Zsh history exists, but has no timestamps
+    has_history_timestamps = True
     if history_entries:
         has_timestamps = any(ts is not None for ts, _ in history_entries)
         if not has_timestamps:
-            print("Warning: Zsh history does not contain timestamps (EXTENDED_HISTORY is off).", file=sys.stderr)
-            print("Ghost detection falls back to package installation times for unused commands.\n", file=sys.stderr)
+            has_history_timestamps = False
 
     current_time = time.time()
     ghosts = []
@@ -251,7 +251,7 @@ def analyze_ghosts(packages, metadata, history_path):
         # Cap days_idle at 0 to handle clock skew/timezone drift
         days_idle = max(0, days_idle)
         
-        if days_idle > IDLE_THRESHOLD_DAYS:
+        if days_idle > threshold_days:
             # Gather size info
             pkg_size = get_package_size(pkg, metadata.get(pkg, {}))
             ghosts.append({
@@ -262,32 +262,80 @@ def analyze_ghosts(packages, metadata, history_path):
 
     # Sort ghosts by size descending for highest impact removal representation
     ghosts.sort(key=lambda g: g['size'], reverse=True)
-    return ghosts
+    return ghosts, has_history_timestamps
+
+class Color:
+    # Check if stdout is a tty to decide if we should use colors
+    ENABLED = sys.stdout.isatty()
+    
+    # ANSI Codes
+    RESET = "\033[0m" if ENABLED else ""
+    BOLD = "\033[1m" if ENABLED else ""
+    DIM = "\033[2m" if ENABLED else ""
+    
+    RED = "\033[31m" if ENABLED else ""
+    GREEN = "\033[32m" if ENABLED else ""
+    YELLOW = "\033[33m" if ENABLED else ""
+    BLUE = "\033[34m" if ENABLED else ""
+    MAGENTA = "\033[35m" if ENABLED else ""
+    CYAN = "\033[36m" if ENABLED else ""
+    WHITE = "\033[37m" if ENABLED else ""
+    GRAY = "\033[90m" if ENABLED else ""
+    
+    # Semantic colors
+    HEADER = BOLD + CYAN
+    SEPARATOR = GRAY
+    ROW_NAME = YELLOW
+    ROW_IDLE = RED
+    SPACE = BOLD + GREEN
+    SUCCESS = BOLD + GREEN
+    WARN = BOLD + YELLOW
 
 def print_help():
     """Print command line usage help."""
-    help_text = """brew-ghost - A behavioral cleanup tool for Homebrew
+    help_text = f"""brew-ghost - A behavioral cleanup tool for Homebrew
 
 Usage:
   brew-ghost [options]
 
 Options:
-  --exorcise   Safely purge packages that have been idle for over 90 days.
-  -h, --help   Show this help message and exit.
+  -d, --days <days>  Configure the threshold of inactivity to flag a ghost (1 to 180 days). Default is 90.
+  --exorcise         Safely purge packages that have been idle for over the specified threshold.
+  -h, --help         Show this help message and exit.
 """
     print(help_text)
 
 def main():
     # Handle basic arguments
     exorcise_mode = False
-    for arg in sys.argv[1:]:
+    idle_threshold_days = 90
+    
+    args = sys.argv[1:]
+    i = 0
+    while i < len(args):
+        arg = args[i]
         if arg in ('-h', '--help'):
             print_help()
             sys.exit(0)
         elif arg == '--exorcise':
             exorcise_mode = True
+            i += 1
+        elif arg in ('-d', '--days'):
+            if i + 1 >= len(args):
+                print(f"{Color.RED}Error: --days requires an integer value between 1 and 180.{Color.RESET}", file=sys.stderr)
+                sys.exit(1)
+            val_str = args[i+1]
+            try:
+                val = int(val_str)
+                if val < 1 or val > 180:
+                    raise ValueError()
+                idle_threshold_days = val
+            except ValueError:
+                print(f"{Color.RED}Error: Invalid days value '{val_str}'. Must be an integer between 1 and 180.{Color.RESET}", file=sys.stderr)
+                sys.exit(1)
+            i += 2
         else:
-            print(f"Unknown argument: {arg}", file=sys.stderr)
+            print(f"{Color.RED}Unknown argument: {arg}{Color.RESET}", file=sys.stderr)
             print_help()
             sys.exit(1)
 
@@ -297,52 +345,70 @@ def main():
     
     packages = get_installed_leaves()
     if not packages:
-        print("No packages found in your Cellar! 🌟")
+        print(f"{Color.SUCCESS}No packages found in your Cellar! 🌟{Color.RESET}")
         sys.exit(0)
         
     metadata = get_packages_metadata(packages)
-    ghosts = analyze_ghosts(packages, metadata, history_file)
+    ghosts, has_history_timestamps = analyze_ghosts(packages, metadata, history_file, idle_threshold_days)
+    
+    # Handle warning prompt for extended history
+    if not has_history_timestamps:
+        print(f"{Color.WARN}Warning: Zsh history does not contain timestamps (EXTENDED_HISTORY is off).{Color.RESET}", file=sys.stderr)
+        print("Ghost detection falls back to package installation times for unused commands.\n", file=sys.stderr)
+        
+        # Check if stdin is a tty to ask the user
+        if sys.stdin.isatty() and sys.stdout.isatty():
+            try:
+                confirm = input(f"Would you like to enable extended history in ~/.zshrc automatically? (y/N): ").strip().lower()
+                if confirm in ('y', 'yes'):
+                    zshrc_path = os.path.expanduser('~/.zshrc')
+                    with open(zshrc_path, 'a') as f:
+                        f.write("\n# Enable extended history timestamps for brew-ghost\nsetopt EXTENDED_HISTORY\n")
+                    print(f"\n{Color.SUCCESS}Extended history has been enabled in ~/.zshrc! 🎉{Color.RESET}")
+                    print(f"Please open a new terminal session or run '{Color.BOLD}source ~/.zshrc{Color.RESET}' to apply changes.\n")
+            except (KeyboardInterrupt, EOFError):
+                print()
     
     if not ghosts:
-        print("No ghostly packages found in your Cellar! 🌟")
+        print(f"{Color.SUCCESS}No ghostly packages found in your Cellar! 🌟{Color.RESET}")
         sys.exit(0)
 
     # Render Table
-    print(f"{'Formula':<14}{'Size':<10}{'Last Active':<15}{'Status':<12}")
-    print("─" * 58)
+    print(f"{Color.HEADER}{'Formula':<14}{'Size':<10}{'Last Active':<15}{'Status':<12}{Color.RESET}")
+    print(f"{Color.SEPARATOR}{'─' * 58}{Color.RESET}")
     
     total_size = 0
     for g in ghosts:
         total_size += g['size']
         size_str = format_size(g['size'])
         last_active_str = f"{g['days_idle']} days ago"
-        print(f"{g['name']:<14}{size_str:<10}{last_active_str:<15}{'Ghostly 👻':<12}")
+        print(f"{Color.ROW_NAME}{g['name']:<14}{Color.RESET}{size_str:<10}{Color.ROW_IDLE}{last_active_str:<15}{Color.ROW_IDLE}{'Ghostly 👻':<12}{Color.RESET}")
         
-    print("─" * 58)
-    print(f"\nTotal potential space recovered: {format_size(total_size)}")
+    print(f"{Color.SEPARATOR}{'─' * 58}{Color.RESET}")
+    print(f"\nTotal potential space recovered: {Color.SPACE}{format_size(total_size)}{Color.RESET}")
 
     if exorcise_mode:
         ghost_names = [g['name'] for g in ghosts]
-        print(f"\nThe following packages will be uninstalled: {', '.join(ghost_names)}")
+        print(f"\nThe following packages will be uninstalled: {Color.WARN}{', '.join(ghost_names)}{Color.RESET}")
         try:
-            confirm = input("Are you sure you want to exorcise these ghosts? (y/N): ").strip().lower()
+            confirm = input(f"{Color.BOLD}Are you sure you want to exorcise these ghosts? (y/N): {Color.RESET}").strip().lower()
         except (KeyboardInterrupt, EOFError):
             print("\nAborted.")
             sys.exit(1)
             
         if confirm in ('y', 'yes'):
-            print("\nExorcising ghosts...")
+            print(f"\n{Color.BOLD}Exorcising ghosts...{Color.RESET}")
             for pkg_name in ghost_names:
-                print(f"\nUninstalling {pkg_name}...")
+                print(f"\nUninstalling {Color.ROW_NAME}{pkg_name}{Color.RESET}...")
                 try:
                     subprocess.run(['brew', 'uninstall', pkg_name], check=True)
                 except subprocess.CalledProcessError as e:
-                    print(f"Error during uninstall of {pkg_name}: {e}", file=sys.stderr)
-            print("\nExorcism complete! Cellar is clean. 🧹✨")
+                    print(f"{Color.RED}Error during uninstall of {pkg_name}: {e}{Color.RESET}", file=sys.stderr)
+            print(f"\n{Color.SUCCESS}Exorcism complete! Cellar is clean. 🧹✨{Color.RESET}")
         else:
             print("\nExorcism aborted. Ghosts remain in the Cellar.")
     else:
-        print("Run `brew-ghost --exorcise` to safely purge these ghosts.")
+        print(f"Run {Color.BOLD}brew-ghost --exorcise{Color.RESET} to safely purge these ghosts.")
 
 if __name__ == '__main__':
     main()
