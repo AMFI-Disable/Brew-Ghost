@@ -33,6 +33,37 @@ def save_config(config):
     except Exception:
         pass
 
+HISTORY_FILE = os.path.join(CONFIG_DIR, 'history.json')
+
+def load_history():
+    if not os.path.exists(HISTORY_FILE):
+        return []
+    try:
+        with open(HISTORY_FILE, 'r') as f:
+            return json.load(f)
+    except Exception:
+        return []
+
+def record_exorcism_history(uninstalled_items):
+    """
+    uninstalled_items: list of dicts [{'name': pkg, 'size': size, 'days_idle': days_idle}]
+    """
+    history = load_history()
+    now_ts = int(time.time())
+    for item in uninstalled_items:
+        history.append({
+            'timestamp': now_ts,
+            'package': item['name'],
+            'size': item['size'],
+            'days_idle': item['days_idle']
+        })
+    try:
+        os.makedirs(CONFIG_DIR, exist_ok=True)
+        with open(HISTORY_FILE, 'w') as f:
+            json.dump(history, f, indent=2)
+    except Exception:
+        pass
+
 def get_formula_executables(pkg, pkg_metadata):
     """Retrieve list of executable names installed by the formula in its bin directory."""
     executables = {pkg}
@@ -346,13 +377,16 @@ Usage:
 Options:
   -d, --days <days>  Configure the threshold of inactivity to flag a ghost (1 to 180 days). Default is 90.
   --exorcise         Safely purge packages that have been idle for over the specified threshold.
+  --json             Output current ghost detection results in JSON format.
+  --history          Display exorcism history log (or combined with --json for raw JSON).
   -h, --help         Show this help message and exit.
 """
     print(help_text)
 
 def main():
-    # Handle basic arguments
     exorcise_mode = False
+    json_mode = False
+    history_mode = False
     config = load_config()
     
     args = sys.argv[1:]
@@ -365,6 +399,12 @@ def main():
         elif arg == '--exorcise':
             exorcise_mode = True
             i += 1
+        elif arg == '--json':
+            json_mode = True
+            i += 1
+        elif arg == '--history':
+            history_mode = True
+            i += 1
         elif arg in ('-d', '--days'):
             if i + 1 >= len(args):
                 print(f"{Color.RED}Error: --days requires an integer value between 1 and 180.{Color.RESET}", file=sys.stderr)
@@ -376,7 +416,10 @@ def main():
                     raise ValueError()
                 config['days_threshold'] = val
                 save_config(config)
-                print(f"{Color.SUCCESS}Settings updated: Inactivity threshold set to {val} days.{Color.RESET}")
+                if json_mode:
+                    print(json.dumps({"status": "success", "days_threshold": val}))
+                else:
+                    print(f"{Color.SUCCESS}Settings updated: Inactivity threshold set to {val} days.{Color.RESET}")
                 sys.exit(0)
             except ValueError:
                 print(f"{Color.RED}Error: Invalid days value '{val_str}'. Must be an integer between 1 and 180.{Color.RESET}", file=sys.stderr)
@@ -386,21 +429,40 @@ def main():
             print_help()
             sys.exit(1)
 
+    if history_mode:
+        history_data = load_history()
+        if json_mode:
+            print(json.dumps(history_data, indent=2))
+        else:
+            if not history_data:
+                print("No exorcism history recorded yet.")
+            else:
+                print(f"{Color.HEADER}{'Date':<20}{'Package':<16}{'Size':<10}{'Idle Days':<10}{Color.RESET}")
+                print(f"{Color.SEPARATOR}{'─' * 56}{Color.RESET}")
+                for h in history_data:
+                    dt_str = datetime.datetime.fromtimestamp(h.get('timestamp', 0)).strftime('%Y-%m-%d %H:%M:%S')
+                    print(f"{dt_str:<20}{h.get('package', ''):<16}{format_size(h.get('size', 0)):<10}{str(h.get('days_idle', 0)) + ' days':<10}")
+        sys.exit(0)
+
     idle_threshold_days = config.get('days_threshold', 90)
     history_file = os.path.expanduser('~/.zsh_history')
     
-    print("Searching for absolute freeloaders in your Cellar...\n")
+    if not json_mode:
+        print("Searching for absolute freeloaders in your Cellar...\n")
     
     packages = get_installed_leaves()
     if not packages:
-        print(f"{Color.SUCCESS}No packages found in your Cellar! 🌟{Color.RESET}")
+        if json_mode:
+            print(json.dumps([]))
+        else:
+            print(f"{Color.SUCCESS}No packages found in your Cellar! 🌟{Color.RESET}")
         sys.exit(0)
         
     metadata = get_packages_metadata(packages)
     ghosts, has_history_timestamps = analyze_ghosts(packages, metadata, history_file, idle_threshold_days)
     
     # Handle warning prompt for extended history
-    if not has_history_timestamps:
+    if not has_history_timestamps and not json_mode:
         current_time = int(time.time())
         mute_until = config.get('extended_history_mute_until', 0)
         
@@ -434,6 +496,18 @@ def main():
             print(f"{Color.WARN}Warning: Zsh history does not contain timestamps (EXTENDED_HISTORY is off).{Color.RESET}", file=sys.stderr)
             print("Ghost detection falls back to package installation times for unused commands.\n", file=sys.stderr)
     
+    if json_mode:
+        json_output = []
+        for g in ghosts:
+            json_output.append({
+                'name': g['name'],
+                'days_idle': g['days_idle'],
+                'size': g['size'],
+                'formatted_size': format_size(g['size'])
+            })
+        print(json.dumps(json_output, indent=2))
+        sys.exit(0)
+
     if not ghosts:
         print(f"{Color.SUCCESS}No ghostly packages found in your Cellar! 🌟{Color.RESET}")
         sys.exit(0)
@@ -463,12 +537,17 @@ def main():
             
         if confirm in ('y', 'yes'):
             print(f"\n{Color.BOLD}Exorcising ghosts...{Color.RESET}")
-            for pkg_name in ghost_names:
+            successfully_uninstalled = []
+            for g in ghosts:
+                pkg_name = g['name']
                 print(f"\nUninstalling {Color.ROW_NAME}{pkg_name}{Color.RESET}...")
                 try:
                     subprocess.run(['brew', 'uninstall', pkg_name], check=True)
+                    successfully_uninstalled.append(g)
                 except subprocess.CalledProcessError as e:
                     print(f"{Color.RED}Error during uninstall of {pkg_name}: {e}{Color.RESET}", file=sys.stderr)
+            if successfully_uninstalled:
+                record_exorcism_history(successfully_uninstalled)
             print(f"\n{Color.SUCCESS}Exorcism complete! Cellar is clean. 🧹✨{Color.RESET}")
         else:
             print("\nExorcism aborted. Ghosts remain in the Cellar.")
