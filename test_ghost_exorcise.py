@@ -1,10 +1,8 @@
-import os
 import sys
 import unittest
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 
 sys.path.append('/Users/even/Desktop/Projects/Brew-Ghost')
-import ghost
 
 class TestGhostExorcise(unittest.TestCase):
     @patch('builtins.input', return_value='y')

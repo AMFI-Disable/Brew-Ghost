@@ -4,14 +4,13 @@ ghost.py - Core engine of the brew-ghost utility.
 Identifies and purges "ghost" Homebrew packages (packages not used in > 90 days).
 """
 
-import sys
+import datetime
+import json
 import os
 import re
 import subprocess
-import json
+import sys
 import time
-
-import datetime
 
 CONFIG_DIR = os.path.expanduser('~/.config/brew-ghost')
 CONFIG_FILE = os.path.join(CONFIG_DIR, 'config.json')
@@ -303,8 +302,7 @@ def analyze_ghosts(packages, metadata, history_path, threshold_days=90):
                     # If extended history timestamp is missing, use history file mtime
                     ts = entry_timestamp if entry_timestamp is not None else history_mtime
                     # Only update if the found time is newer than what we currently have
-                    if ts > last_active[pkg]:
-                        last_active[pkg] = ts
+                    last_active[pkg] = max(last_active[pkg], ts)
                     found_in_entry.append(pkg)
                     
         # Remove found packages from active search set to speed up lookup
@@ -369,7 +367,7 @@ class Color:
 
 def print_help():
     """Print command line usage help."""
-    help_text = f"""brew-ghost - A behavioral cleanup tool for Homebrew
+    help_text = """brew-ghost - A behavioral cleanup tool for Homebrew
 
 Usage:
   brew-ghost [options]
@@ -474,7 +472,7 @@ def main():
             # Check if stdin is a tty to ask the user
             if sys.stdin.isatty() and sys.stdout.isatty():
                 try:
-                    confirm = input(f"Would you like to enable extended history in ~/.zshrc automatically? (y/N): ").strip().lower()
+                    confirm = input("Would you like to enable extended history in ~/.zshrc automatically? (y/N): ").strip().lower()
                     if confirm in ('y', 'yes'):
                         zshrc_path = os.path.expanduser('~/.zshrc')
                         with open(zshrc_path, 'a') as f:
