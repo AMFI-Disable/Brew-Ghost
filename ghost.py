@@ -260,7 +260,7 @@ def format_size(bytes_size):
         return f"{gb:.1f} GB"
     # Match layout specifications (e.g. integer MB or rounded floats)
     if mb >= 10:
-        return f"{int(round(mb))} MB"
+        return f"{round(mb)} MB"
     return f"{mb:.1f} MB"
 
 def analyze_ghosts(packages, metadata, history_path, threshold_days=90):
