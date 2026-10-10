@@ -1,8 +1,9 @@
+import os
 import sys
 import unittest
 from unittest.mock import patch
 
-sys.path.append('/Users/even/Desktop/Projects/Brew-Ghost')
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 class TestGhostExorcise(unittest.TestCase):
     @patch('builtins.input', return_value='y')

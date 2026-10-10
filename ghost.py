@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-ghost.py - Core engine of the brew-ghost utility.
+ghost.py - Core engine of the Brew-Ghost utility.
 Identifies and purges "ghost" Homebrew packages (packages not used in > 90 days).
 """
 
@@ -367,9 +367,10 @@ class Color:
 
 def print_help():
     """Print command line usage help."""
-    help_text = """brew-ghost - A behavioral cleanup tool for Homebrew
+    help_text = """Brew-Ghost - A behavioral cleanup tool for Homebrew
 
 Usage:
+  Brew-Ghost [options]
   brew-ghost [options]
 
 Options:
@@ -476,7 +477,7 @@ def main():
                     if confirm in ('y', 'yes'):
                         zshrc_path = os.path.expanduser('~/.zshrc')
                         with open(zshrc_path, 'a') as f:
-                            f.write("\n# Enable extended history timestamps for brew-ghost\nsetopt EXTENDED_HISTORY\n")
+                            f.write("\n# Enable extended history timestamps for Brew-Ghost\nsetopt EXTENDED_HISTORY\n")
                         print(f"\n{Color.SUCCESS}Extended history has been enabled in ~/.zshrc! 🎉{Color.RESET}")
                         print(f"Please open a new terminal session or run '{Color.BOLD}source ~/.zshrc{Color.RESET}' to apply changes.\n")
                         config['extended_history_configured'] = True
@@ -550,7 +551,7 @@ def main():
         else:
             print("\nExorcism aborted. Ghosts remain in the Cellar.")
     else:
-        print(f"Run {Color.BOLD}brew-ghost --exorcise{Color.RESET} to safely purge these ghosts.")
+        print(f"Run {Color.BOLD}Brew-Ghost --exorcise{Color.RESET} to safely purge these ghosts.")
 
 if __name__ == '__main__':
     main()

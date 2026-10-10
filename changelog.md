@@ -4,6 +4,14 @@ All notable changes, features, and release history for Brew-Ghost are documented
 
 ---
 
+## [1.1.1] - Official Branding & Identity Standardization
+
+### Changed
+- **Official Nomenclature**: Standardized all project documentation, help output, and references to the official name `Brew-Ghost` instead of all lowercase.
+- **Dual CLI Aliasing**: Supported binary execution under both `Brew-Ghost` and `brew-ghost` in Homebrew distribution formulas.
+
+---
+
 ## [1.1.0] - Behavioral Engine Enhancements
 
 ### Added
@@ -18,7 +26,7 @@ All notable changes, features, and release history for Brew-Ghost are documented
 
 ## [1.0.0] - Initial Production Release
 
-`brew-ghost` is a behavioral cleanup tool that identifies and purges unused Homebrew packages by analyzing terminal shell history.
+`Brew-Ghost` is a behavioral cleanup tool that identifies and purges unused Homebrew packages by analyzing terminal shell history.
 
 ### Added
 
