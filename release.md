@@ -7,8 +7,8 @@ Follow this guide to package, hash, and publish releases of `Brew-Ghost` to your
 ## 🛠 Prerequisites
 
 Ensure you have created two public GitHub repositories:
-1. `https://github.com/amfi-disable/Brew-Ghost` (holds the application code)
-2. `https://github.com/amfi-disable/Homebrew-Tap` (holds your custom formula)
+1. `https://github.com/AMFI-Disable/Brew-Ghost` (holds the application code)
+2. `https://github.com/AMFI-Disable/Homebrew-Tap` (holds your custom formula)
 
 ---
 
@@ -33,20 +33,20 @@ git push origin main
 4. Leave the Target as `main`.
 5. Set the Title as `V1.0.0`.
 6. Click **Publish release**.
-7. GitHub will automatically package the source code and generate the source tarball archive at:
-   `https://github.com/amfi-disable/Brew-Ghost/archive/refs/tags/V1.0.0.tar.gz`
+7. GitHub will automatically package the source code and attach the release archive.
 
 ---
 
 ### Step 3: Compute the SHA256 Checksum on macOS
-Download the generated source archive and calculate its cryptographic hash:
+
+Download the release archive via GitHub CLI and calculate its cryptographic hash:
 
 ```bash
-# 1. Download the source tarball
-curl -LO https://github.com/amfi-disable/Brew-Ghost/archive/refs/tags/V1.0.0.tar.gz
+# 1. Download the release archive using gh CLI
+gh release download v1.0.0 --repo AMFI-Disable/Brew-Ghost --archive=tar.gz
 
 # 2. Compute the SHA256 checksum using macOS native tool
-shasum -a 256 V1.0.0.tar.gz
+shasum -a 256 Brew-Ghost-1.0.0.tar.gz
 ```
 
 *Copy the 64-character hexadecimal hash output from the `shasum` command.*
@@ -62,7 +62,7 @@ shasum -a 256 V1.0.0.tar.gz
 ### Step 5: Publish the Formula to your Tap Repo
 1. Clone your `Homebrew-Tap` repository locally:
    ```bash
-   git clone https://github.com/amfi-disable/Homebrew-Tap.git
+   git clone https://github.com/AMFI-Disable/Homebrew-Tap.git
    cd Homebrew-Tap
    ```
 2. Create a `formula` directory if it does not already exist:
@@ -86,5 +86,5 @@ shasum -a 256 V1.0.0.tar.gz
 Once the tap repository is updated on GitHub, users (including yourself) can instantly install `Brew-Ghost` using:
 
 ```bash
-brew install amfi-disable/tap/brew-ghost
+brew install AMFI-Disable/tap/brew-ghost
 ```
