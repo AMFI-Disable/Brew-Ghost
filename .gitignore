@@ -1,2 +1,127 @@
+# ==============================================================================
+# Brew-Ghost .gitignore
+# ==============================================================================
+# Controls file visibility and repository hygiene:
+# - Hides transient build artifacts, machine-specific caches, editor states, and secrets.
+# - Preserves active working files, configuration definitions, and distribution assets.
+# ==============================================================================
+
+# ==============================================================================
+# SECTION 1: WORKING & PRESERVED FILES (Explicit Whitelists)
+# (Guarantees vital project sources, configs, and assets are preserved)
+# ==============================================================================
+
+# Core Project Files
+!ghost.py
+!test_ghost_exorcise.py
+!.gitignore
+!.markdownlint.json
+
+# Documentation & Guides
+!readme*.md
+!changelog.md
+!license
+!deploy_guide.md
+!release.md
+
+# ==============================================================================
+# SECTION 2: HIDDEN & IGNORED ARTIFACTS
+# (Local caches, intermediate builds, user states, credentials, diagnostics)
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# 2.1 macOS System & Volume Metadata
+# ------------------------------------------------------------------------------
+.DS_Store
+.DS_Store?
+.ds_store
+._*
+.AppleDouble
+.LSOverride
+.Spotlight-V100
+.Trashes
+Icon?
+
+# ------------------------------------------------------------------------------
+# 2.2 Python Bytecode & Runtime Caches
+# ------------------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*$py.class
+
+# ------------------------------------------------------------------------------
+# 2.3 Virtual Environments
+# ------------------------------------------------------------------------------
+.venv/
+venv/
+env/
+
+# ------------------------------------------------------------------------------
+# 2.4 Testing, Linting & Coverage
+# ------------------------------------------------------------------------------
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# ------------------------------------------------------------------------------
+# 2.5 Local Formula Staging & Build Archives
+# (Formula is distributed via Homebrew Tap; tarballs are release assets)
+# ------------------------------------------------------------------------------
 formula/
+build/
+dist/
 *.tar.gz
+*.tgz
+*.zip
+
+# ------------------------------------------------------------------------------
+# 2.6 Environment Secrets, Private Keys & Tokens
+# ------------------------------------------------------------------------------
+.env
+.env.*
+*.key
+*.pem
+*.token
+credentials.json
+token.json
+*secret*
+
+# ------------------------------------------------------------------------------
+# 2.7 Diagnostics, Logs & Telemetry
+# ------------------------------------------------------------------------------
+*.log
+logs/
+
+# ------------------------------------------------------------------------------
+# 2.8 IDEs, Text Editors & AI Agent Working Contexts
+# ------------------------------------------------------------------------------
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.gemini/
+.claude/
+.cursor/
+.windsurf/
+.codex/
+antigravity.json
+.nodeterm/
+
+# ------------------------------------------------------------------------------
+# 2.9 Temporary Files, Local Scratchpads & Local Internal Documents
+# ------------------------------------------------------------------------------
+*.tmp
+*.temp
+*.bak
+tmp/
+temp/
+scratch/
+task.md
+todo.md
+plan.md
+report.md
