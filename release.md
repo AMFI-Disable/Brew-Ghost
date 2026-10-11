@@ -63,7 +63,7 @@ shasum -a 256 Brew-Ghost-1.0.0.tar.gz
 
 ---
 
-### Step 5: Publish the Formula to your Tap Repo
+### Step 5: Publish The Formula To Your Tap Repo
 
 1. Clone your `Homebrew-Tap` repository locally:
 
