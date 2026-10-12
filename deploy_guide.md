@@ -1,10 +1,11 @@
-# 🚀 Git Repository Segregation and Deployment Guide
+# 🚀 Git Repository Segregation And Deployment Guide
 
 Use these terminal commands in your macOS Zsh shell to isolate, initialize, and push the files to your two separate GitHub repositories: `Brew-Ghost` and `Homebrew-Tap`.
 
 ---
 
 ## 📂 Step 1: Create Isolated Staging Directories
+
 We will clean any previous staging folders on your Desktop and create isolated directory structures.
 
 ```zsh
@@ -16,7 +17,8 @@ mkdir -p ~/Desktop/brew-ghost-staging/Homebrew-Tap/Formula
 
 ---
 
-## 💾 Step 2: Copy Files to Respective Repositories
+## 💾 Step 2: Copy Files To Respective Repositories
+
 Copy each file from your project folder to the staging area corresponding to its destination repository.
 
 ```zsh
@@ -33,7 +35,8 @@ cp /Users/even/Desktop/Projects/Tooling/Brew-Ghost/formula/brew-ghost.rb ~/Deskt
 ---
 
 ## 🌐 Step 3: Initialize & Push Repository 1 (`Brew-Ghost`)
-This repository contains the source code, documentation, and tests. We will also create the `V1.0.0` tag required for Homebrew tarball distribution.
+
+This repository contains the source code, documentation, and tests. We will also create the `v1.0.0` tag required for Homebrew tarball distribution.
 
 ```zsh
 # Move to the Brew-Ghost staging directory
@@ -43,20 +46,21 @@ cd ~/Desktop/brew-ghost-staging/Brew-Ghost
 git init
 git checkout -b main
 git add .
-git commit -m "feat: initial release of Brew-Ghost core engine"
+git commit -m "feat: release core engine"
 
-# Tag the commit for V1.0.0 release tarball generation
-git tag -a V1.0.0 -m "feat: initial tag release"
+# Tag the commit for v1.0.0 release tarball generation
+git tag -a v1.0.0 -m "feat: release initial tag"
 
 # Link to GitHub and push main branch + tag
-git remote add origin https://github.com/amfi-disable/Brew-Ghost.git
+git remote add origin https://github.com/AMFI-Disable/Brew-Ghost.git
 git push -u origin main
-git push origin V1.0.0
+git push origin v1.0.0
 ```
 
 ---
 
 ## 🍺 Step 4: Initialize & Push Repository 2 (`Homebrew-Tap`)
+
 This repository acts as your personal Homebrew Tap distribution endpoint containing the formula file.
 
 ```zsh
@@ -67,9 +71,9 @@ cd ~/Desktop/brew-ghost-staging/Homebrew-Tap
 git init
 git checkout -b main
 git add .
-git commit -m "feat: add custom tap formula for Brew-Ghost"
+git commit -m "feat: add tap formula"
 
 # Link to GitHub and push main branch
-git remote add origin https://github.com/amfi-disable/Homebrew-Tap.git
+git remote add origin https://github.com/AMFI-Disable/Homebrew-Tap.git
 git push -u origin main
 ```
