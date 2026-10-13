@@ -1,4 +1,4 @@
-# 📦 Step-by-Step Release Protocol (`v1.0.0`)
+# 📦 Step-By-Step Release Protocol (`v1.0.0`)
 
 Follow this guide to package, hash, and publish releases of `Brew-Ghost` to your custom Homebrew Tap.
 
