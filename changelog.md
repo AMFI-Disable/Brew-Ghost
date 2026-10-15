@@ -4,6 +4,14 @@ All notable changes, features, and release history for Brew-Ghost are documented
 
 ---
 
+## [Unreleased]
+
+### Changed
+
+- Aligned documentation markdown header casing with Title Case guidelines.
+
+---
+
 ## [1.1.1] - Official Branding & Identity Standardization
 
 ### Changed
