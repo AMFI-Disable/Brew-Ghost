@@ -20,7 +20,7 @@ Ensure you have created two public GitHub repositories:
 Ensure all application files (`ghost.py`, `readme.md`, etc.) are committed and pushed to the main branch of your `Brew-Ghost` repository:
 
 ```bash
-cd /Users/even/Desktop/Projects/Tooling/Brew-Ghost
+cd "$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 git add .
 git commit -m "feat: publish initial release"
 git push origin main
@@ -81,7 +81,7 @@ shasum -a 256 Brew-Ghost-1.0.0.tar.gz
 3. Copy the updated `brew-ghost.rb` formula into the `formula/` directory:
 
    ```bash
-   cp /Users/even/Desktop/Projects/Tooling/Brew-Ghost/formula/brew-ghost.rb formula/brew-ghost.rb
+   cp ../Brew-Ghost/formula/brew-ghost.rb formula/brew-ghost.rb
    ```
 
 4. Commit and push the formula back to GitHub:

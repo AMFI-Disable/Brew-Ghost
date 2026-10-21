@@ -23,13 +23,13 @@ Copy each file from your project folder to the staging area corresponding to its
 
 ```zsh
 # Copy core application files to the Brew-Ghost repository
-cp /Users/even/Desktop/Projects/Tooling/Brew-Ghost/ghost.py ~/Desktop/brew-ghost-staging/Brew-Ghost/
-cp /Users/even/Desktop/Projects/Tooling/Brew-Ghost/readme.md ~/Desktop/brew-ghost-staging/Brew-Ghost/
-cp /Users/even/Desktop/Projects/Tooling/Brew-Ghost/release.md ~/Desktop/brew-ghost-staging/Brew-Ghost/
-cp /Users/even/Desktop/Projects/Tooling/Brew-Ghost/test_ghost_exorcise.py ~/Desktop/brew-ghost-staging/Brew-Ghost/
+cp ./ghost.py ~/Desktop/brew-ghost-staging/Brew-Ghost/
+cp ./readme.md ~/Desktop/brew-ghost-staging/Brew-Ghost/
+cp ./release.md ~/Desktop/brew-ghost-staging/Brew-Ghost/
+cp ./test_ghost_exorcise.py ~/Desktop/brew-ghost-staging/Brew-Ghost/
 
 # Copy the Homebrew Formula to the Homebrew-Tap repository
-cp /Users/even/Desktop/Projects/Tooling/Brew-Ghost/formula/brew-ghost.rb ~/Desktop/brew-ghost-staging/Homebrew-Tap/Formula/
+cp ./formula/brew-ghost.rb ~/Desktop/brew-ghost-staging/Homebrew-Tap/Formula/
 ```
 
 ---
