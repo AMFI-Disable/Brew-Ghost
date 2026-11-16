@@ -1,6 +1,6 @@
-# 👻 Brew-Ghost
-
 <div align="center">
+
+# Brew-Ghost
 
 **Exorcise The Freeloaders In Your Homebrew Cellar**  
 *Behavioral shell-history analyzer that safely identifies and purges abandoned packages idle for over 90 days.*
@@ -9,13 +9,13 @@
 [![Shell: Bash / Zsh](https://img.shields.io/badge/Shell-Bash%20%2F%20Zsh-orange.svg?style=flat-square&logo=gnubash)](https://gnu.org)
 [![Tap: AMFI-Disable/tap](https://img.shields.io/badge/Tap-AMFI--Disable%2Ftap-blue.svg?style=flat-square&logo=homebrew)](https://brew.sh)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](license)
-[![Privacy: Zero Telemetry](https://img.shields.io/badge/Privacy-Zero%20Telemetry%20%2F%20100%25%20Local-purple.svg?style=flat-square)](#-how-it-works)
+[![Privacy: Zero Telemetry](https://img.shields.io/badge/Privacy-Zero%20Telemetry%20%2F%20100%25%20Local-purple.svg?style=flat-square)](#how-it-works)
 
 </div>
 
 ---
 
-## 🚀 Installation
+## Installation
 
 Install `Brew-Ghost` using the official Homebrew Tap:
 
@@ -29,7 +29,7 @@ brew install AMFI-Disable/tap/brew-ghost
 
 ---
 
-## 🛠 Usage
+## Usage
 
 Once installed, you can scan your Cellar by running:
 
@@ -51,7 +51,7 @@ You will be presented with the list of packages to remove and prompted for confi
 
 ---
 
-## 🧠 How It Works
+## How It Works
 
 `Brew-Ghost` follows a multi-phase behavioral analysis:
 
@@ -65,7 +65,7 @@ You will be presented with the list of packages to remove and prompted for confi
 
 ---
 
-## ⚠️ Getting Accurate Results
+## Getting Accurate Results
 
 For `Brew-Ghost` to compute exact active days, your Zsh shell must write execution timestamps to the history file.
 
@@ -81,6 +81,6 @@ setopt EXTENDED_HISTORY
 
 ---
 
-## 📄 License And Open Source
+## License And Open Source
 
 Licensed under the [MIT License](license). Copyright (c) 2026 AMFI-Disable.

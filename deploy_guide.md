@@ -1,10 +1,10 @@
-# 🚀 Git Repository Segregation And Deployment Guide
+# Git Repository Segregation And Deployment Guide
 
 Use these terminal commands in your macOS Zsh shell to isolate, initialize, and push the files to your two separate GitHub repositories: `Brew-Ghost` and `Homebrew-Tap`.
 
 ---
 
-## 📂 Step 1: Create Isolated Staging Directories
+## Step 1: Create Isolated Staging Directories
 
 We will clean any previous staging folders on your Desktop and create isolated directory structures.
 
@@ -17,7 +17,7 @@ mkdir -p ~/Desktop/brew-ghost-staging/Homebrew-Tap/Formula
 
 ---
 
-## 💾 Step 2: Copy Files To Respective Repositories
+## Step 2: Copy Files To Respective Repositories
 
 Copy each file from your project folder to the staging area corresponding to its destination repository.
 
@@ -34,7 +34,7 @@ cp ./formula/brew-ghost.rb ~/Desktop/brew-ghost-staging/Homebrew-Tap/Formula/
 
 ---
 
-## 🌐 Step 3: Initialize & Push Repository 1 (`Brew-Ghost`)
+## Step 3: Initialize & Push Repository 1 (`Brew-Ghost`)
 
 This repository contains the source code, documentation, and tests. We will also create the `v1.0.0` tag required for Homebrew tarball distribution.
 
@@ -59,7 +59,7 @@ git push origin v1.0.0
 
 ---
 
-## 🍺 Step 4: Initialize & Push Repository 2 (`Homebrew-Tap`)
+## Step 4: Initialize & Push Repository 2 (`Homebrew-Tap`)
 
 This repository acts as your personal Homebrew Tap distribution endpoint containing the formula file.
 

@@ -1,10 +1,10 @@
-# 📦 Step-By-Step Release Protocol (`v1.0.0`)
+# Step-By-Step Release Protocol (`v1.0.0`)
 
 Follow this guide to package, hash, and publish releases of `Brew-Ghost` to your custom Homebrew Tap.
 
 ---
 
-## 🛠 Prerequisites
+## Prerequisites
 
 Ensure you have created two public GitHub repositories:
 
@@ -13,7 +13,7 @@ Ensure you have created two public GitHub repositories:
 
 ---
 
-## 📋 Release Checklist
+## Release Checklist
 
 ### Step 1: Push Source Code To GitHub
 
@@ -94,7 +94,7 @@ shasum -a 256 Brew-Ghost-1.0.0.tar.gz
 
 ---
 
-## 🎉 Test The Installation
+## Test The Installation
 
 Once the tap repository is updated on GitHub, users (including yourself) can instantly install `Brew-Ghost` using:
 
