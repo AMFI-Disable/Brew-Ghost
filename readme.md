@@ -11,6 +11,8 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](license)
 [![Privacy: Zero Telemetry](https://img.shields.io/badge/Privacy-Zero%20Telemetry%20%2F%20100%25%20Local-purple.svg?style=flat-square)](#how-it-works)
 
+[Changelog](changelog.md) · [Security Policy](security.md) · [MIT License](license)
+
 </div>
 
 ---
