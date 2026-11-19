@@ -5,6 +5,7 @@
 **Exorcise The Freeloaders In Your Homebrew Cellar**  
 *Behavioral shell-history analyzer that safely identifies and purges abandoned packages idle for over 90 days.*
 
+[![Website: Live](https://img.shields.io/badge/Website-Live-FBC02D.svg?style=flat-square)](https://amfi-disable.github.io/Brew-Ghost/)
 [![Platform: macOS & Linux](https://img.shields.io/badge/Platform-macOS%20%7C%20Linux-blue.svg?style=flat-square&logo=apple)](https://apple.com)
 [![Shell: Bash / Zsh](https://img.shields.io/badge/Shell-Bash%20%2F%20Zsh-orange.svg?style=flat-square&logo=gnubash)](https://gnu.org)
 [![Tap: AMFI-Disable/tap](https://img.shields.io/badge/Tap-AMFI--Disable%2Ftap-blue.svg?style=flat-square&logo=homebrew)](https://brew.sh)
