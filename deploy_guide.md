@@ -12,7 +12,7 @@ We will clean any previous staging folders on your Desktop and create isolated d
 # Clean and create isolated directories on your Desktop
 rm -rf ~/Desktop/brew-ghost-staging
 mkdir -p ~/Desktop/brew-ghost-staging/Brew-Ghost
-mkdir -p ~/Desktop/brew-ghost-staging/Homebrew-Tap/Formula
+mkdir -p ~/Desktop/brew-ghost-staging/Homebrew-Tap/formula
 ```
 
 ---
@@ -29,7 +29,7 @@ cp ./release.md ~/Desktop/brew-ghost-staging/Brew-Ghost/
 cp ./test_ghost_exorcise.py ~/Desktop/brew-ghost-staging/Brew-Ghost/
 
 # Copy the Homebrew Formula to the Homebrew-Tap repository
-cp ./formula/brew-ghost.rb ~/Desktop/brew-ghost-staging/Homebrew-Tap/Formula/
+cp ./formula/brew-ghost.rb ~/Desktop/brew-ghost-staging/Homebrew-Tap/formula/
 ```
 
 ---

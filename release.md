@@ -58,7 +58,7 @@ shasum -a 256 Brew-Ghost-1.0.0.tar.gz
 
 ### Step 4: Update The Formula With The Checksum
 
-1. Open the [brew-ghost.rb](formula/brew-ghost.rb) file.
+1. Open [formula/brew-ghost.rb](https://github.com/AMFI-Disable/Homebrew-Tap/blob/main/formula/brew-ghost.rb) in the `Homebrew-Tap` repository.
 2. Replace `<SHA256_PLACEHOLDER>` in the `sha256` field with the checksum you generated in Step 3.
 
 ---
