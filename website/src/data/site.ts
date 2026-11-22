@@ -59,5 +59,24 @@ export const siteConfig = {
     "macOS or Linux with Homebrew",
     "Bash or Zsh extended history enabled",
     "Python 3.10+"
+  ],
+  "hubName": "AMFI Terminal",
+  "hubHash": "terminal",
+  "previewTabs": [
+    {
+      "tab": "90-Day Audit",
+      "title": "Shell History Correlation",
+      "body": "Cross-references installed Homebrew formulae against extended Bash/Zsh history timestamps."
+    },
+    {
+      "tab": "Read-Only Scan",
+      "title": "Safe Default Mode",
+      "body": "Running brew-ghost scan reports idle packages and disk savings without uninstalling anything."
+    },
+    {
+      "tab": "Guided Exorcise",
+      "title": "Dependency-Aware Purge",
+      "body": "Protects active dependencies and lets you confirm or exclude packages before removal."
+    }
   ]
 } as const;
