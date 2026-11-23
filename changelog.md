@@ -8,6 +8,7 @@ All notable changes, features, and release history for Brew-Ghost are documented
 
 ### Changed
 
+- Restored the Star History chart section and links in `readme.md` and `website/src/main.ts`.
 - Aligned documentation markdown header casing with Title Case guidelines.
 
 ---
