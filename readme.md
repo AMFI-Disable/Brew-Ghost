@@ -18,6 +18,18 @@
 
 ---
 
+## Star History
+
+<a href="https://www.star-history.com/?type=date&repos=amfi-disable%2Fbrew-ghost">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=amfi-disable%2Fbrew-ghost&type=date&theme=dark&legend=top-left" />
+    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=amfi-disable%2Fbrew-ghost&type=date&legend=top-left" />
+    <img alt="AMFI-Disable/Brew-Ghost Star History Chart" src="https://api.star-history.com/chart?repos=amfi-disable%2Fbrew-ghost&type=date&legend=top-left" />
+  </picture>
+</a>
+
+---
+
 ## Installation
 
 Install `Brew-Ghost` using the official Homebrew Tap:
@@ -87,15 +99,3 @@ setopt EXTENDED_HISTORY
 ## License And Open Source
 
 Licensed under the [MIT License](license). Copyright (c) 2026 AMFI-Disable.
-
----
-
-## Star History
-
-<a href="https://www.star-history.com/#AMFI-Disable/Brew-Ghost&Date">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=AMFI-Disable/Brew-Ghost&type=Date&theme=dark" />
-    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=AMFI-Disable/Brew-Ghost&type=Date" />
-    <img alt="AMFI-Disable/Brew-Ghost Star History Chart" src="https://api.star-history.com/svg?repos=AMFI-Disable/Brew-Ghost&type=Date" />
-  </picture>
-</a>
