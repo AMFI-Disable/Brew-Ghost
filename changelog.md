@@ -6,6 +6,10 @@ All notable changes, features, and release history for Brew-Ghost are documented
 
 ## [Unreleased]
 
+### Fixed
+
+- Updated CLI command examples in `website/src/data/site.ts` from `ghost scan` and `brew-ghost scan` to `brew-ghost` and `brew-ghost --dry-run`.
+
 ### Changed
 
 - Restored the Star History chart section and links in `readme.md` and `website/src/main.ts`.
