@@ -20,7 +20,7 @@ export const siteConfig = {
     },
     {
       "title": "Read-Only Scan by Default",
-      "desc": "Running ghost scan inspects your cellar safely without uninstalling a single package."
+      "desc": "Running brew-ghost inspects your cellar safely without uninstalling a single package."
     },
     {
       "title": "Dependency-Aware Exorcise",
@@ -52,7 +52,7 @@ export const siteConfig = {
     },
     {
       "label": "Run Read-Only Scan",
-      "cmd": "brew-ghost scan"
+      "cmd": "brew-ghost --dry-run"
     }
   ],
   "requirements": [
@@ -71,7 +71,7 @@ export const siteConfig = {
     {
       "tab": "Read-Only Scan",
       "title": "Safe Default Mode",
-      "body": "Running brew-ghost scan reports idle packages and disk savings without uninstalling anything."
+      "body": "Running brew-ghost --dry-run reports idle packages and disk savings without uninstalling anything."
     },
     {
       "tab": "Guided Exorcise",
