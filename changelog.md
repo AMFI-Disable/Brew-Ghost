@@ -8,6 +8,8 @@ All notable changes, features, and release history for Brew-Ghost are documented
 
 ### Fixed
 
+- The CLI now accepts the JSON flag on either side of the days threshold, validates trailing options before saving, and reports failed settings writes.
+
 - Updated CLI command examples in `website/src/data/site.ts` from `ghost scan` and `brew-ghost scan` to `brew-ghost` and `brew-ghost --dry-run`.
 
 ### Changed

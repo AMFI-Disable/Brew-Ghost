@@ -10,6 +10,7 @@ import os
 import re
 import subprocess
 import sys
+import tempfile
 import time
 
 CONFIG_DIR = os.path.expanduser('~/.config/brew-ghost')
@@ -25,12 +26,20 @@ def load_config():
         return {}
 
 def save_config(config):
+    temp_path = None
     try:
         os.makedirs(CONFIG_DIR, exist_ok=True)
-        with open(CONFIG_FILE, 'w') as f:
+        with tempfile.NamedTemporaryFile(mode='w', dir=CONFIG_DIR, delete=False) as f:
+            temp_path = f.name
             json.dump(config, f, indent=2)
-    except Exception:
-        pass
+        os.replace(temp_path, CONFIG_FILE)
+        return True
+    except OSError as error:
+        print(f"Could not save Brew-Ghost settings: {error}", file=sys.stderr)
+        return False
+    finally:
+        if temp_path and os.path.exists(temp_path):
+            os.unlink(temp_path)
 
 HISTORY_FILE = os.path.join(CONFIG_DIR, 'history.json')
 
@@ -386,7 +395,7 @@ def main():
     exorcise_mode = False
     json_mode = False
     history_mode = False
-    config = load_config()
+    days_threshold = None
     
     args = sys.argv[1:]
     i = 0
@@ -413,13 +422,8 @@ def main():
                 val = int(val_str)
                 if val < 1 or val > 180:
                     raise ValueError()
-                config['days_threshold'] = val
-                save_config(config)
-                if json_mode:
-                    print(json.dumps({"status": "success", "days_threshold": val}))
-                else:
-                    print(f"{Color.SUCCESS}Settings updated: Inactivity threshold set to {val} days.{Color.RESET}")
-                sys.exit(0)
+                days_threshold = val
+                i += 2
             except ValueError:
                 print(f"{Color.RED}Error: Invalid days value '{val_str}'. Must be an integer between 1 and 180.{Color.RESET}", file=sys.stderr)
                 sys.exit(1)
@@ -427,6 +431,17 @@ def main():
             print(f"{Color.RED}Unknown argument: {arg}{Color.RESET}", file=sys.stderr)
             print_help()
             sys.exit(1)
+
+    config = load_config()
+    if days_threshold is not None:
+        config['days_threshold'] = days_threshold
+        if not save_config(config):
+            sys.exit(1)
+        if json_mode:
+            print(json.dumps({"status": "success", "days_threshold": days_threshold}))
+        else:
+            print(f"{Color.SUCCESS}Settings updated: Inactivity threshold set to {days_threshold} days.{Color.RESET}")
+        sys.exit(0)
 
     if history_mode:
         history_data = load_history()
@@ -485,7 +500,8 @@ def main():
                     else:
                         # Mute for 7 days
                         config['extended_history_mute_until'] = current_time + (7 * 24 * 3600)
-                        save_config(config)
+                        if not save_config(config):
+                            sys.exit(1)
                         mute_date = datetime.datetime.fromtimestamp(config['extended_history_mute_until']).strftime('%Y-%m-%d %H:%M:%S')
                         print(f"\nExtended history prompt muted for 7 days (until {mute_date}).\n")
                 except (KeyboardInterrupt, EOFError):
